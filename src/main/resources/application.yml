@@ -16,3 +16,9 @@ spring:
     password: @spring.redis.password@
     database: 30
 
+
+swagger:
+  enabled: @swagger.enabled@
+  title: @swagger.title@
+  description: @swagger.description@
+  exclude-path: /error
