@@ -1,0 +1,18 @@
+server:
+  port: 9090
+  servlet:
+    context-path: /nfplus-ncov
+
+spring:
+  profiles:
+    active: @env@
+  jackson:
+    date-format: "yyyy-MM-dd HH:mm:ss"
+    time-zone: GMT+8
+    default-property-inclusion: non_null
+  redis:
+    host: @spring.redis.host@
+    port: @spring.redis.port@
+    password: @spring.redis.password@
+    database: 30
+
