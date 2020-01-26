@@ -15,6 +15,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.net.URL;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -74,7 +75,7 @@ public class PneumoniaServiceImpl implements PneumoniaService {
             });
 
             PneumoniaStats pneumoniaStats = PneumoniaStats.builder().confirmedCount(confirmedCount.get())
-                    .suspectedCount(suspectedCount.get()).curedCount(curedCount.get())
+                    .suspectedCount(suspectedCount.get()).curedCount(curedCount.get()).statsTime(new Date())
                     .deadCount(deadCount.get()).provinceStats(provinceStats).build();
             this.stringRedisTemplate.opsForValue().set(NcovConst.DXY_NCOV_DATA, JSON.toJSONString(pneumoniaStats));
         } catch (Exception e) {

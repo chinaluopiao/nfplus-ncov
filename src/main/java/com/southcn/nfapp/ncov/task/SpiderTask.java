@@ -24,7 +24,7 @@ import java.util.Optional;
 public class SpiderTask {
 
     private OkHttpClient client = new OkHttpClient();
-    private String url = "https://h5.peopleapp.com/2019ncov/Home/index";
+
 
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
@@ -35,6 +35,7 @@ public class SpiderTask {
     @Scheduled(fixedDelay = 1800000)
     public void spider() {
         log.info("数据抓取开始。。。。");
+        final String url = "https://h5.peopleapp.com/2019ncov/Home/index";
         Request request = new Request.Builder().url(url).build();
         try (Response response = client.newCall(request).execute()) {
             if (response.isSuccessful()) {
@@ -65,4 +66,28 @@ public class SpiderTask {
 
     }
 
+    @Scheduled(fixedDelay = 3000000)
+    public void spiderSpecialTopic() {
+        log.info("专题稿件数据。。。。");
+        final String url = "https://api.nfapp.southcn.com/nanfang_if/v1/getSpecialTopic?columnId=17076&count=20&type=0";
+        Request request = new Request.Builder().url(url).build();
+        try (Response response = client.newCall(request).execute()) {
+            if (response.isSuccessful()) {
+                Optional.ofNullable(response.body()).ifPresent(value -> {
+                    try {
+                        String string = value.string();
+                        log.info("{} 抓取数据:{}", DateFormatUtils.format(new Date(), "yyyy-MM-dd HH:mm:ss"), string);
+                        if (StringUtils.isNotBlank(string)) {
+                            this.stringRedisTemplate.opsForValue().set(NcovConst.NFPLUS_SPECIAL_TOPIC_DATA, string);
+                        }
+                    } catch (IOException e) {
+                        log.error("专题稿件数据抓取出错", e);
+                    }
+                });
+            }
+        } catch (Exception e) {
+            log.error("专题稿件数据抓取出错", e);
+        }
+        log.info("专题稿件数据抓取结束。");
+    }
 }
