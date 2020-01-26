@@ -3,6 +3,7 @@ package com.southcn.nfapp.ncov.task;
 import com.alibaba.fastjson.JSON;
 import com.southcn.nfapp.ncov.bean.NcovData;
 import com.southcn.nfapp.ncov.constant.NcovConst;
+import com.southcn.nfapp.ncov.service.PneumoniaService;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -27,6 +28,9 @@ public class SpiderTask {
 
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
+
+    @Autowired
+    private PneumoniaService pneumoniaService;
 
     @Scheduled(fixedDelay = 1800000)
     public void spider() {
@@ -53,5 +57,12 @@ public class SpiderTask {
         log.info("数据抓取结束。。。。");
     }
 
+    @Scheduled(fixedDelay = 1800000)
+    public void spiderPneumonia() {
+        log.info("丁香医生数据抓取开始。。。。");
+        Boolean result = this.pneumoniaService.spider();
+        log.info("丁香医生数据抓取结束。 结果:{}", result);
+
+    }
 
 }

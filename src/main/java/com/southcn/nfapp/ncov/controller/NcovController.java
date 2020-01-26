@@ -5,6 +5,7 @@ import com.southcn.nfapp.ncov.assist.Response;
 import com.southcn.nfapp.ncov.assist.ResponseBuilder;
 import com.southcn.nfapp.ncov.bean.NcovData;
 import com.southcn.nfapp.ncov.bean.NfplusCnov;
+import com.southcn.nfapp.ncov.bean.PneumoniaStats;
 import com.southcn.nfapp.ncov.constant.NcovConst;
 import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
@@ -32,6 +33,17 @@ public class NcovController {
             NfplusCnov nfplusCnov = NfplusCnov.builder().statsTime(ncovData.getStatsTime()).globalStats(ncovData.getGlobalStats())
                     .provStats(ncovData.getProvStats()).otherStats(ncovData.getOtherStats()).build();
             return Mono.just(ResponseBuilder.buildSuccess(nfplusCnov));
+        } else {
+            return Mono.just(ResponseBuilder.buildFail());
+        }
+    }
+
+    @ApiOperation(value = "获取地区疫情数据", response = PneumoniaStats.class)
+    @GetMapping("areaData")
+    public Mono<Response> areaData() {
+        String value = this.stringRedisTemplate.opsForValue().get(NcovConst.DXY_NCOV_DATA);
+        if (StringUtils.isNoneBlank(value)) {
+            return Mono.just(ResponseBuilder.buildSuccess(JSON.parseObject(value, PneumoniaStats.class)));
         } else {
             return Mono.just(ResponseBuilder.buildFail());
         }
