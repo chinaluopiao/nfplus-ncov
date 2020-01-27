@@ -10,6 +10,13 @@ import com.southcn.nfapp.ncov.bean.ProvinceStat;
 import com.southcn.nfapp.ncov.constant.NcovConst;
 import com.southcn.nfapp.ncov.service.PneumoniaService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
+import org.apache.commons.lang3.time.DateUtils;
+import org.apache.commons.net.util.Base64;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -17,8 +24,11 @@ import org.springframework.stereotype.Service;
 import java.net.URL;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 @Slf4j
@@ -62,6 +72,42 @@ public class PneumoniaServiceImpl implements PneumoniaService {
             Pneumonia pneumonia = JSON.parseObject(JSON.toJSONString(scriptResult), Pneumonia.class);
             List<ProvinceStat> provinceStats = JSON.parseObject(pneumonia.getJavaScriptResult(), new TypeReference<List<ProvinceStat>>() {
             });
+            String pageAsXml = page.asXml();
+
+            // Jsoup解析处理
+            Document doc = Jsoup.parse(pageAsXml);
+            Elements span = doc.select("#root > div > div.mapBox___qoGhu > div.mapTop___2VZCl > p.mapTitle___2QtRg > span");
+            PneumoniaStats.PneumoniaStatsBuilder builder = PneumoniaStats.builder();
+            if (Objects.nonNull(span)) {
+                String text = span.text();
+                log.info("丁香医生日期数据:{}", text);
+                Pattern compile = Pattern.compile("\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}");
+                Matcher matcher = compile.matcher(text);
+                if (matcher.find()) {
+                    try {
+                        Date date = DateUtils.parseDate(matcher.group(), "yyyy-MM-dd HH:mm");
+                        log.info("丁香医生日期解析:{}", DateFormatUtils.format(date, "yyyy-MM-dd HH:mm:ss"));
+                        builder.statsTime(date);
+                    } catch (Exception e) {
+                        log.error("时间格式出错", e);
+                    }
+                } else {
+                    builder.statsTime(new Date());
+                }
+            } else {
+                builder.statsTime(new Date());
+            }
+            Elements image = doc.select("#root > div > div.mapBox___qoGhu > img");
+            if (Objects.nonNull(image)) {
+                String src = image.attr("src");
+                try {
+                    log.info("丁香医生趋势图地址:{}", src);
+                    byte[] bytes = IOUtils.toByteArray(new URL(src));
+                    this.stringRedisTemplate.opsForValue().set(NcovConst.DXY_NCOV_DATA_DIAGRAM, Base64.encodeBase64String(bytes));
+                } catch (Exception e) {
+                    log.error("丁香医生趋势图地址出错", e);
+                }
+            }
 
             AtomicInteger confirmedCount = new AtomicInteger();
             AtomicInteger suspectedCount = new AtomicInteger();
@@ -74,8 +120,8 @@ public class PneumoniaServiceImpl implements PneumoniaService {
                 deadCount.addAndGet(provinceStat.getDeadCount());
             });
 
-            PneumoniaStats pneumoniaStats = PneumoniaStats.builder().confirmedCount(confirmedCount.get())
-                    .suspectedCount(suspectedCount.get()).curedCount(curedCount.get()).statsTime(new Date())
+            PneumoniaStats pneumoniaStats = builder.confirmedCount(confirmedCount.get())
+                    .suspectedCount(suspectedCount.get()).curedCount(curedCount.get())
                     .deadCount(deadCount.get()).provinceStats(provinceStats).build();
             this.stringRedisTemplate.opsForValue().set(NcovConst.DXY_NCOV_DATA, JSON.toJSONString(pneumoniaStats));
         } catch (Exception e) {

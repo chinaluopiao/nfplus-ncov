@@ -8,7 +8,6 @@ import com.southcn.nfapp.ncov.bean.NfplusCnov;
 import com.southcn.nfapp.ncov.bean.PneumoniaStats;
 import com.southcn.nfapp.ncov.constant.NcovConst;
 import io.swagger.annotations.ApiOperation;
-import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -47,6 +46,13 @@ public class NcovController {
         } else {
             return Mono.just(ResponseBuilder.buildFail());
         }
+    }
+
+    @ApiOperation(value = "获取疫情趋势图，base64编码", response = PneumoniaStats.class)
+    @GetMapping("getDiagram")
+    public Mono<Response> getDiagram() {
+        String value = this.stringRedisTemplate.opsForValue().get(NcovConst.DXY_NCOV_DATA_DIAGRAM);
+        return Mono.just(ResponseBuilder.buildSuccess(value));
     }
 
 }

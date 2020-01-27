@@ -24,4 +24,11 @@ public class SpecialController {
     public Mono<Response> getSpecialTopic() {
         return Mono.just(ResponseBuilder.buildSuccess(this.stringRedisTemplate.opsForValue().get(NcovConst.NFPLUS_SPECIAL_TOPIC_DATA)));
     }
+
+    @ApiOperation(value = "获取辟谣列表数据", response = String.class)
+    @GetMapping("getRefuting")
+    public Mono<Response> getRefuting() {
+        return Mono.just(ResponseBuilder.buildSuccess(this.stringRedisTemplate.opsForValue().get(NcovConst.NFPLUS_REFUTING_TOPIC_DATA)));
+    }
+
 }
