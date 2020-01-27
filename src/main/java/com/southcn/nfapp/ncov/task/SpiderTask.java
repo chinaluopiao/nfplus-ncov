@@ -46,7 +46,7 @@ public class SpiderTask {
 
     }
 
-    @Scheduled(fixedDelay = 3000000)
+    @Scheduled(fixedDelay = 300000)
     public void spiderSpecialTopic() {
         log.info("专题稿件数据。。。。");
         final String url = "https://api.nfapp.southcn.com/nanfang_if/v1/getSpecialTopic?columnId=17076&count=20&type=0";
@@ -64,7 +64,7 @@ public class SpiderTask {
         log.info("专题稿件数据抓取结束。");
     }
 
-    @Scheduled(fixedDelay = 3000000)
+    @Scheduled(fixedDelay = 300000)
     public void spiderRefuting() {
         log.info("辟谣专题稿件数据。。。。");
         final String url = "https://api.nfapp.southcn.com/nanfang_if/v1/getArticles?columnId=17162&rowNumber=0&lastFieldId=0&service=0&location=&version=0&nfhSubCount=0&count=20";
