@@ -1,5 +1,9 @@
 package com.southcn.nfapp.ncov.constant;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 public class NcovConst {
     public static final String NCOV_DATA = "ncov_data";
     public static final String DXY_NCOV_DATA = "dxy_ncov_data";
@@ -12,6 +16,17 @@ public class NcovConst {
 
     public static final String CHINA_KEYWORD = "中国";
     public static final String CHINA_GUANG_DONG_KEYWORD = "广东";
+    /**
+     * 最新动态栏目数据 武汉动态、广东情况、各地情况、病毒溯源
+     */
+    public static final List<Integer> NEW_DYNAMIC_COLUMNS = Arrays.asList(17112, 17078, 17079, 17117);
+    public static final String NEW_DYNAMIC_COLUMNS_ARTICLES = "NEW_DYNAMIC_COLUMNS_ARTICLES";
 
+
+    /**
+     * 广东省版本
+     */
+    public static final List<Integer> NEW_DYNAMIC_GUANGDONG_COLUMNS = Collections.singletonList(17078);
+    public static final String NEW_DYNAMIC_COLUMNS_GUANGDONG_ARTICLES = "new_dynamic_columns_guangdong_articles";
 
 }

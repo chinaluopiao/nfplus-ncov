@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.southcn.nfapp.ncov.bean.NcovData;
 import com.southcn.nfapp.ncov.constant.NcovConst;
 import com.southcn.nfapp.ncov.service.DxyDataService;
+import com.southcn.nfapp.ncov.service.NfplusService;
 import com.southcn.nfapp.ncov.service.TxDataService;
 import com.southcn.nfapp.ncov.utils.OkHttpUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +26,9 @@ public class SpiderTask {
 
     @Autowired
     private TxDataService txDataService;
+
+    @Autowired
+    private NfplusService nfplusService;
 
     @Scheduled(fixedDelay = 60000)
     public void spiderPeopleapp() {
@@ -58,13 +62,7 @@ public class SpiderTask {
     @Scheduled(fixedDelay = 300000)
     public void spiderSpecialTopic() {
         log.info("专题稿件数据。。。。");
-        final String url = "https://api.nfapp.southcn.com/nanfang_if/v1/getSpecialTopic?columnId=17076&count=20&type=0";
-        OkHttpUtils httpUtils = OkHttpUtils.builder().build();
-        String string = httpUtils.get(url);
-        if (StringUtils.isNotBlank(string)) {
-            log.info("专题稿件数据不为空，存储缓存");
-            this.stringRedisTemplate.opsForValue().set(NcovConst.NFPLUS_SPECIAL_TOPIC_DATA, string);
-        }
+        this.nfplusService.spiderSpecialTopic();
         log.info("专题稿件数据抓取结束。");
     }
 

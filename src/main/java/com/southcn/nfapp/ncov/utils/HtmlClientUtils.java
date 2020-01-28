@@ -46,13 +46,12 @@ public class HtmlClientUtils {
             request.setAdditionalHeader(HttpHeader.UPGRADE_INSECURE_REQUESTS, "1");
             request.setAdditionalHeader(HttpHeader.ACCEPT_LANGUAGE, "zh,en;q=0.9,en-US;q=0.8,zh-CN;q=0.7");
             HtmlPage page = wc.getPage(request);
-            wc.waitForBackgroundJavaScript(10000);
             Map<String, ScriptResult> resultMap = new HashMap<>();
             if (Objects.nonNull(commands)) {
                 Arrays.asList(commands).forEach(command -> {
                     ScriptResult scriptResult = page.executeJavaScript(command);
                     resultMap.put(command, scriptResult);
-                    log.info("url:{},执行:{},结果:{}", url, command, scriptResult.toString());
+                    log.info("url:{},执行:{},结果大小:{}", url, command, scriptResult.toString().length());
                 });
             }
             return resultMap;

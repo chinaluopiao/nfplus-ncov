@@ -28,7 +28,7 @@ public class NcovController {
     @Autowired
     private RedisTemplate<Object, Object> redisTemplate;
 
-    @ApiOperation(value = "获取疫情数据", response = NfplusCnov.class)
+    @ApiOperation(value = "获取疫情数据-人民日报", response = NfplusCnov.class)
     @GetMapping("data")
     public Mono<Response> data() {
         String value = this.stringRedisTemplate.opsForValue().get(NcovConst.NCOV_DATA);
@@ -43,7 +43,7 @@ public class NcovController {
         }
     }
 
-    @ApiOperation(value = "获取地区疫情数据", response = PneumoniaStats.class)
+    @ApiOperation(value = "获取地区疫情数据-丁香医生", response = PneumoniaStats.class)
     @GetMapping("areaData")
     public Mono<Response> areaData() {
         String value = this.stringRedisTemplate.opsForValue().get(NcovConst.DXY_NCOV_DATA);
@@ -62,7 +62,7 @@ public class NcovController {
     }
 
 
-    @ApiOperation(value = "获取腾讯疫情数据", response = UnifiedData.class)
+    @ApiOperation(value = "获取疫情数据-腾讯版本", response = UnifiedData.class)
     @GetMapping("getUnifiedData")
     public Mono<Response> getUnifiedData() {
         return Mono.just(ResponseBuilder.buildSuccess(this.redisTemplate.opsForValue().get(NcovConst.TX_NCOV_DATA)));
