@@ -7,9 +7,11 @@ import com.southcn.nfapp.ncov.bean.NcovData;
 import com.southcn.nfapp.ncov.bean.NfplusCnov;
 import com.southcn.nfapp.ncov.bean.PneumoniaStats;
 import com.southcn.nfapp.ncov.constant.NcovConst;
+import com.southcn.nfapp.ncov.unified.UnifiedData;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,12 +25,16 @@ public class NcovController {
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
 
+    @Autowired
+    private RedisTemplate<Object, Object> redisTemplate;
+
     @ApiOperation(value = "获取疫情数据", response = NfplusCnov.class)
     @GetMapping("data")
     public Mono<Response> data() {
         String value = this.stringRedisTemplate.opsForValue().get(NcovConst.NCOV_DATA);
         if (StringUtils.isNoneBlank(value)) {
             NcovData ncovData = JSON.parseObject(value, NcovData.class);
+            assert ncovData != null;
             NfplusCnov nfplusCnov = NfplusCnov.builder().statsTime(ncovData.getStatsTime()).globalStats(ncovData.getGlobalStats())
                     .provStats(ncovData.getProvStats()).otherStats(ncovData.getOtherStats()).build();
             return Mono.just(ResponseBuilder.buildSuccess(nfplusCnov));
@@ -53,6 +59,13 @@ public class NcovController {
     public Mono<Response> getDiagram() {
         String value = this.stringRedisTemplate.opsForValue().get(NcovConst.DXY_NCOV_DATA_DIAGRAM);
         return Mono.just(ResponseBuilder.buildSuccess(value));
+    }
+
+
+    @ApiOperation(value = "获取腾讯疫情数据", response = UnifiedData.class)
+    @GetMapping("getUnifiedData")
+    public Mono<Response> getUnifiedData() {
+        return Mono.just(ResponseBuilder.buildSuccess(this.redisTemplate.opsForValue().get(NcovConst.TX_NCOV_DATA)));
     }
 
 }

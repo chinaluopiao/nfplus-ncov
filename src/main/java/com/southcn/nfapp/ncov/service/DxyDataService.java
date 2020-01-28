@@ -1,6 +1,6 @@
 package com.southcn.nfapp.ncov.service;
 
-public interface PneumoniaService {
+public interface DxyDataService {
 
     /**
      * 丁香医生数据抓取

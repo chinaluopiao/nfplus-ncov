@@ -1,6 +1,5 @@
 package com.southcn.nfapp.ncov.utils;
 
-import com.southcn.nfapp.ncov.constant.NcovConst;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
@@ -8,6 +7,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
+import org.springframework.http.HttpHeaders;
 
 import java.io.IOException;
 import java.util.Date;
@@ -20,7 +20,14 @@ public class OkHttpUtils {
     private static final OkHttpClient client = new OkHttpClient.Builder().build();
 
     public String get(String url) {
-        Request request = new Request.Builder().url(url).build();
+        Request request = new Request.Builder().url(url)
+                .removeHeader(HttpHeaders.USER_AGENT)
+                .addHeader(HttpHeaders.USER_AGENT, "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Mobile Safari/537.36")
+                .removeHeader(HttpHeaders.REFERER)
+                .addHeader(HttpHeaders.REFERER,"https://activity.peopleapp.com/broadcast/")
+                .removeHeader(HttpHeaders.ORIGIN)
+                .addHeader(HttpHeaders.ORIGIN,"https://activity.peopleapp.com")
+                .build();
         StringBuilder sb = new StringBuilder();
         try (Response response = client.newCall(request).execute()) {
             if (response.isSuccessful()) {
