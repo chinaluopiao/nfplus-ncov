@@ -15,7 +15,9 @@ spring:
     port: @spring.redis.port@
     password: @spring.redis.password@
     database: 30
-
+  data:
+    mongodb:
+      uri: @spring.data.mongodb.uri@
 
 swagger:
   enabled: @swagger.enabled@

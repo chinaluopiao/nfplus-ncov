@@ -5,6 +5,7 @@ import com.southcn.nfapp.ncov.bean.NcovData;
 import com.southcn.nfapp.ncov.constant.NcovConst;
 import com.southcn.nfapp.ncov.service.DxyDataService;
 import com.southcn.nfapp.ncov.service.NfplusService;
+import com.southcn.nfapp.ncov.service.PeopleDataService;
 import com.southcn.nfapp.ncov.service.TxDataService;
 import com.southcn.nfapp.ncov.utils.OkHttpUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -30,17 +31,12 @@ public class SpiderTask {
     @Autowired
     private NfplusService nfplusService;
 
+    @Autowired
+    private PeopleDataService peopleDataService;
+
     @Scheduled(fixedDelay = 60000)
     public void spiderPeopleapp() {
-        log.info("人民网数据抓取开始。。。。");
-        final String url = "https://h5.peopleapp.com/2019ncov/Home/index";
-        OkHttpUtils httpUtils = OkHttpUtils.builder().build();
-        String string = httpUtils.get(url);
-        if (StringUtils.isNotBlank(string)) {
-            NcovData ncovData = JSON.parseObject(string, NcovData.class);
-            this.stringRedisTemplate.opsForValue().set(NcovConst.NCOV_DATA, JSON.toJSONString(ncovData));
-        }
-        log.info("人民网数据抓取结束。。。。");
+        this.peopleDataService.spider();
     }
 
     @Scheduled(fixedDelay = 60000)
@@ -51,7 +47,7 @@ public class SpiderTask {
     }
 
 
-    @Scheduled(fixedDelay = 60000)
+    //@Scheduled(fixedDelay = 60000)
     public void spiderTx() {
         log.info("腾讯数据抓取开始。。。。");
         Boolean result = this.txDataService.spider();
@@ -76,5 +72,34 @@ public class SpiderTask {
             this.stringRedisTemplate.opsForValue().set(NcovConst.NFPLUS_REFUTING_TOPIC_DATA, string);
         }
         log.info("辟谣稿件数据抓取结束。");
+    }
+
+    /**
+     * 腾讯数据回写
+     */
+    @Scheduled(fixedDelay = 3000)
+    public void txWriteback() {
+        this.txDataService.txWriteback();
+    }
+
+    /**
+     * 丁香医
+     */
+    @Scheduled(fixedDelay = 3000)
+    public void dxyWriteback() {
+        this.dxyDataService.dxyWriteback();
+    }
+
+    /**
+     * 丁香医
+     */
+    @Scheduled(fixedDelay = 3000)
+    public void nfWriteback() {
+        this.nfplusService.nfWriteback();
+    }
+
+    @Scheduled(fixedDelay = 3000)
+    public void nfFileWriteback() {
+        this.nfplusService.nfFileWriteback();
     }
 }

@@ -1,5 +1,6 @@
 package com.southcn.nfapp.ncov.bean.tx;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.southcn.nfapp.ncov.unified.UnifiedDay;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -25,6 +26,7 @@ public class TxDayCounts implements Serializable {
     private Integer confirm;
 
     @ApiModelProperty("可疑")
+    @JSONField(serialize = false, deserialize = false)
     private Integer suspect;
 
     @ApiModelProperty("治愈")

@@ -8,4 +8,11 @@ public interface TxDataService {
      * @return
      */
     public Boolean spider();
+
+    /**
+     * 腾讯数据回写
+     *
+     * @return
+     */
+    public Boolean txWriteback();
 }

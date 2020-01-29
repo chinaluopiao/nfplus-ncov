@@ -3,6 +3,8 @@ package com.southcn.nfapp.ncov.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.southcn.nfapp.ncov.bean.tx.TxRespond;
 import com.southcn.nfapp.ncov.constant.NcovConst;
+import com.southcn.nfapp.ncov.dao.TxUnifiedDataRepository;
+import com.southcn.nfapp.ncov.entity.TxUnifiedData;
 import com.southcn.nfapp.ncov.service.TxDataService;
 import com.southcn.nfapp.ncov.unified.UnifiedArea;
 import com.southcn.nfapp.ncov.unified.UnifiedData;
@@ -10,6 +12,7 @@ import com.southcn.nfapp.ncov.unified.UnifiedDay;
 import com.southcn.nfapp.ncov.utils.OkHttpUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.DateFormatUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -29,6 +32,9 @@ public class TxDataServiceImpl implements TxDataService {
 
     @Autowired
     private RedisTemplate<Object, Object> redisTemplate;
+
+    @Autowired
+    private TxUnifiedDataRepository txUnifiedDataRepository;
 
     @Override
     public Boolean spider() {
@@ -58,10 +64,27 @@ public class TxDataServiceImpl implements TxDataService {
                 .map(unifiedDays -> unifiedDays.stream().max(Comparator.comparing(UnifiedDay::getConfirm)).orElse(null))
                 .filter(Objects::nonNull).sorted(Comparator.comparing(UnifiedDay::getDate))
                 .collect(Collectors.toList());
+        this.redisTemplate.opsForValue().set(NcovConst.NFPLUS_GUANG_DONG_DATA_KEY, gdDayList);
         builder.gdDays(gdDayList);
+        builder.time(new Date());
         UnifiedData data = builder.build();
         log.info("腾讯数据缓存:{}", JSON.toJSONString(data).length());
         this.redisTemplate.opsForValue().set(NcovConst.TX_NCOV_DATA, data);
+
+        return Boolean.TRUE;
+    }
+
+    @Override
+    public Boolean txWriteback() {
+        Object object = this.redisTemplate.opsForValue().get(NcovConst.TX_NCOV_DATA);
+        if (object instanceof UnifiedData) {
+            UnifiedData data = (UnifiedData) object;
+            //存储数据库
+            TxUnifiedData txUnifiedData = new TxUnifiedData();
+            BeanUtils.copyProperties(data, txUnifiedData);
+            txUnifiedData.setId(DateFormatUtils.ISO_8601_EXTENDED_DATE_FORMAT.format(data.getGlobal().getTime()));
+            this.txUnifiedDataRepository.save(txUnifiedData);
+        }
         return Boolean.TRUE;
     }
 }

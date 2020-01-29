@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
+import java.util.Objects;
+
 @RestController
 @RequestMapping("ncov")
 public class NcovController {
@@ -31,16 +33,7 @@ public class NcovController {
     @ApiOperation(value = "获取疫情数据-人民日报", response = NfplusCnov.class)
     @GetMapping("data")
     public Mono<Response> data() {
-        String value = this.stringRedisTemplate.opsForValue().get(NcovConst.NCOV_DATA);
-        if (StringUtils.isNoneBlank(value)) {
-            NcovData ncovData = JSON.parseObject(value, NcovData.class);
-            assert ncovData != null;
-            NfplusCnov nfplusCnov = NfplusCnov.builder().statsTime(ncovData.getStatsTime()).globalStats(ncovData.getGlobalStats())
-                    .provStats(ncovData.getProvStats()).otherStats(ncovData.getOtherStats()).build();
-            return Mono.just(ResponseBuilder.buildSuccess(nfplusCnov));
-        } else {
-            return Mono.just(ResponseBuilder.buildFail());
-        }
+        return Mono.just(ResponseBuilder.buildSuccess(this.redisTemplate.opsForValue().get(NcovConst.NCOV_DATA)));
     }
 
     @ApiOperation(value = "获取地区疫情数据-丁香医生", response = PneumoniaStats.class)
@@ -61,11 +54,34 @@ public class NcovController {
         return Mono.just(ResponseBuilder.buildSuccess(value));
     }
 
-
-    @ApiOperation(value = "获取疫情数据-腾讯版本", response = UnifiedData.class)
-    @GetMapping("getUnifiedData")
-    public Mono<Response> getUnifiedData() {
+    @ApiOperation(value = "获取疫情数据-腾讯版本(统一版本)", response = UnifiedData.class)
+    @GetMapping(value = {"getTxUnifiedData"})
+    public Mono<Response> getTxUnifiedData() {
         return Mono.just(ResponseBuilder.buildSuccess(this.redisTemplate.opsForValue().get(NcovConst.TX_NCOV_DATA)));
     }
+
+
+    @ApiOperation(value = "获取疫情数据-南方+版本(统一版本)", response = UnifiedData.class)
+    @GetMapping(value = {"getUnifiedData"})
+    public Mono<Response> getUnifiedData() {
+        Object value = this.redisTemplate.opsForValue().get(NcovConst.NF_UNIFIED_NCOV_DATA);
+        if (Objects.isNull(value)) {
+            value = this.redisTemplate.opsForValue().get(NcovConst.TX_NCOV_DATA);
+        }
+        return Mono.just(ResponseBuilder.buildSuccess(value));
+    }
+
+    @ApiOperation(value = "获取疫情数据-丁香版本(统一版本)", response = UnifiedData.class)
+    @GetMapping("getDxUnifiedData")
+    public Mono<Response> getDxUnifiedData() {
+        return Mono.just(ResponseBuilder.buildSuccess(this.redisTemplate.opsForValue().get(NcovConst.DYX_UNIFIED_NCOV_DATA)));
+    }
+
+    @ApiOperation(value = "获取疫情数据-南方+广东版本(统一版本)", response = UnifiedData.class)
+    @GetMapping("getGdUnifiedData")
+    public Mono<Response> getGdUnifiedData() {
+        return Mono.just(ResponseBuilder.buildSuccess(this.redisTemplate.opsForValue().get(NcovConst.NF_XLS_UNIFIED_NCOV_DATA)));
+    }
+
 
 }
