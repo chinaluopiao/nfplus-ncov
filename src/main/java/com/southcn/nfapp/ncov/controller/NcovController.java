@@ -32,11 +32,13 @@ public class NcovController {
 
     @ApiOperation(value = "获取疫情数据-人民日报", response = NfplusCnov.class)
     @GetMapping("data")
+    @Deprecated
     public Mono<Response> data() {
         return Mono.just(ResponseBuilder.buildSuccess(this.redisTemplate.opsForValue().get(NcovConst.NCOV_DATA)));
     }
 
     @ApiOperation(value = "获取地区疫情数据-丁香医生", response = PneumoniaStats.class)
+    @Deprecated
     @GetMapping("areaData")
     public Mono<Response> areaData() {
         String value = this.stringRedisTemplate.opsForValue().get(NcovConst.DXY_NCOV_DATA);
@@ -48,6 +50,7 @@ public class NcovController {
     }
 
     @ApiOperation(value = "获取疫情趋势图，base64编码", response = PneumoniaStats.class)
+    @Deprecated
     @GetMapping("getDiagram")
     public Mono<Response> getDiagram() {
         String value = this.stringRedisTemplate.opsForValue().get(NcovConst.DXY_NCOV_DATA_DIAGRAM);

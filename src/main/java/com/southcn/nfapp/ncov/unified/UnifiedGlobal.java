@@ -29,5 +29,8 @@ public class UnifiedGlobal implements Serializable {
     @ApiModelProperty("更新时间")
     private Date time;
 
+    @ApiModelProperty("更新时间的显示文本")
+    private String infoTime;
+
 
 }

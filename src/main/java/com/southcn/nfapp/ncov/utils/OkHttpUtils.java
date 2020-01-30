@@ -26,7 +26,7 @@ public class OkHttpUtils {
                 .removeHeader(HttpHeaders.REFERER)
                 .addHeader(HttpHeaders.REFERER,"https://activity.peopleapp.com/broadcast/")
                 .removeHeader(HttpHeaders.ORIGIN)
-                .addHeader(HttpHeaders.ORIGIN,"https://activity.peopleapp.com")
+                //.addHeader(HttpHeaders.ORIGIN,"https://activity.peopleapp.com")
                 .build();
         StringBuilder sb = new StringBuilder();
         try (Response response = client.newCall(request).execute()) {

@@ -116,15 +116,11 @@ public class NfplusServiceImpl implements NfplusService {
                 log.info("xls数据头:{}", JSON.toJSONString(headerData));
                 log.info("xls数据集合:{}", JSON.toJSONString(list));
                 Date date = NfplusUtils.parseXlsHeaderDate(headerData.getText());
-                UnifiedGlobal global = NfplusUtils.getUnifiedGlobal(date, list);
+                UnifiedGlobal global = NfplusUtils.getUnifiedGlobal(headerData.getText(), date, list);
                 builder.global(global);
                 builder.domestic(Collections.singletonList(NfplusUtils.getUnifiedArea(global, list)));
                 //设置广东省天的
-                builder.gdDays(NfplusUtils.getUnifiedDay(this.nfXlsUnifiedDataRepository.findAll().stream().map(source -> {
-                    UnifiedData target = new UnifiedData();
-                    BeanUtils.copyProperties(source, target);
-                    return target;
-                }).collect(Collectors.toList())));
+                builder.gdDays(NfplusUtils.getGdUnifiedDay(this.nfXlsUnifiedDataRepository.findAll()));
                 UnifiedData data = builder.build();
                 log.info("xls数据组装:{}", JSON.toJSONString(data));
                 this.redisTemplate.opsForValue().set(NcovConst.NF_XLS_UNIFIED_NCOV_DATA, data);
@@ -132,6 +128,8 @@ public class NfplusServiceImpl implements NfplusService {
                 BeanUtils.copyProperties(data, target);
                 target.setId(DateFormatUtils.ISO_8601_EXTENDED_DATE_FORMAT.format(data.getGlobal().getTime()));
                 this.nfXlsUnifiedDataRepository.save(target);
+                boolean delete = file.delete();
+                log.info("处理文件{}后删除文件结果:{}", file.getAbsoluteFile(), delete);
             });
         } else {
             log.info("文件读取异常:{}", file.getAbsoluteFile());
