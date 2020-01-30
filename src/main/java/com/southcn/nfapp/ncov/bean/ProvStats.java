@@ -26,5 +26,4 @@ public class ProvStats implements Serializable {
     private Date time;
 
 
-
 }

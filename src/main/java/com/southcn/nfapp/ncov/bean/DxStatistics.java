@@ -38,5 +38,4 @@ public class DxStatistics implements Serializable {
     private Integer deadCount;
 
 
-
 }

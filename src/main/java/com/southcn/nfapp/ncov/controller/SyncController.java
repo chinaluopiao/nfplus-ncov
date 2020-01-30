@@ -2,16 +2,14 @@ package com.southcn.nfapp.ncov.controller;
 
 import com.southcn.nfapp.ncov.assist.Response;
 import com.southcn.nfapp.ncov.assist.ResponseBuilder;
-import com.southcn.nfapp.ncov.bean.PneumoniaStats;
-import com.southcn.nfapp.ncov.constant.NcovConst;
 import com.southcn.nfapp.ncov.service.DxyDataService;
 import com.southcn.nfapp.ncov.service.PeopleDataService;
 import com.southcn.nfapp.ncov.service.TxDataService;
-import com.southcn.nfapp.ncov.unified.UnifiedData;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -26,9 +24,6 @@ public class SyncController {
 
     @Autowired
     private PeopleDataService peopleDataService;
-
-    @Autowired
-    private RedisTemplate<Object, Object> redisTemplate;
 
     @ApiOperation(value = "刷新腾讯数据-手动触发", response = Boolean.class)
     @GetMapping("tx")
@@ -47,13 +42,5 @@ public class SyncController {
     public Mono<Response> syncPeople() {
         return Mono.just(ResponseBuilder.buildSuccess(this.peopleDataService.spider()));
     }
-
-    //@ApiOperation(value = "人工刷新腾讯数据", response = Boolean.class)
-    //@PostMapping("updateTx")
-    /*public Mono<Response> updateTx(@RequestBody UnifiedData unifiedData) {
-        this.redisTemplate.opsForValue().set(NcovConst.TX_NCOV_DATA, unifiedData);
-        this.redisTemplate.opsForValue().set(NcovConst.NF_UNIFIED_NCOV_DATA, unifiedData);
-        return Mono.just(ResponseBuilder.buildSuccess(Boolean.TRUE));
-    }*/
 
 }

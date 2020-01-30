@@ -35,5 +35,4 @@ public class NcovData implements Serializable {
     private List<OtherStats> otherStats;
 
 
-
 }

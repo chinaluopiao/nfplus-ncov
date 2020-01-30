@@ -17,5 +17,4 @@ public class SouthcnException extends RuntimeException {
     private Object data;
 
 
-
 }

@@ -24,7 +24,7 @@ public class OkHttpUtils {
                 .removeHeader(HttpHeaders.USER_AGENT)
                 .addHeader(HttpHeaders.USER_AGENT, "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Mobile Safari/537.36")
                 .removeHeader(HttpHeaders.REFERER)
-                .addHeader(HttpHeaders.REFERER,"https://activity.peopleapp.com/broadcast/")
+                .addHeader(HttpHeaders.REFERER, "https://activity.peopleapp.com/broadcast/")
                 .removeHeader(HttpHeaders.ORIGIN)
                 //.addHeader(HttpHeaders.ORIGIN,"https://activity.peopleapp.com")
                 .build();
